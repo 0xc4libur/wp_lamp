@@ -1,0 +1,25 @@
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  <FilesMatch "\.(php|html)$">
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-Powered-By "PHP/2.0"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set Cache-Control "max-age=600"
+    Header set Strict-Transport-Security "max-age=31536000; includeSubDomains" env=HTTPS
+    Header set Content-Security-Policy "default-src 'self'; script-src 'unsafe-inline' 'unsafe-eval' http:; style-src 'unsafe-inline' http:; img-src http: data:; font-src http: data:; sandbox allow-forms allow-scripts"
+    Header set Referrer-Policy "no-referrer-when-downgrade"
+    Header set Permissions-Policy "camera=(), microphone=()"
+  </FilesMatch>
+</IfModule>
+
+<IfModule mod_filter.c>
+  FilterDeclare HttpHeaders
+<IfModule mod_deflate.c>
+    FilterProvider HttpHeaders DEFLATE "%{HTTP:Accept-Encoding} =~ /gzip/ && (%{CONTENT_TYPE} =~ m#^(application/javascript|application/x-javascript|application/json|application/ld+json|application/manifest+json|application/rdf+xml|application/rss+xml|application/schema+json|application/vnd.geo+json|application/x-web-app-manifest+json|application/vnd.ms-fontobject|application/x-font-ttf|application/xhtml+xml|application/xml|font/opentype|font/eot|image/bmp|image/svg+xml|image/x-icon|image/vnd.microsoft.icon|text/javascript|text/css|text/html|text/plain|text/x-component|text/xml)# || %{REQUEST_FILENAME} =~ /.(php|html|js|css|json|xml|svg|txt|bmp|ico|ttf|otf|eot)$/)"
+  </IfModule>
+  FilterChain HttpHeaders
+</IfModule>
+
+<IfModule mod_headers.c>
+  Header always edit Set-Cookie (.*) "$1;HttpOnly;Secure;SameSite=Strict"
+</IfModule>
